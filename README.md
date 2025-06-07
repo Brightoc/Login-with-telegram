@@ -1,6 +1,8 @@
 # Telegram Multi-Account Login System
 
-![Demo Screenshot](./screenshot.png) *Replace with actual screenshot*
+![Demo Screenshot](./Screenshot_20250607-230453.jpg)
+
+*Replace with actual screenshot*
 
 A secure frontend authentication system that allows users to log in with their Telegram accounts and switch between multiple profiles.
 
