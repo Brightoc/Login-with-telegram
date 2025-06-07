@@ -3,97 +3,425 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Login Demo</title>
+    <title>Telegram Auth | Secure Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #0088cc;
+            --primary-light: #e6f4ff;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 136, 204, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
             line-height: 1.6;
         }
-        .container {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .hero {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(to right, var(--primary), #00c6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .features {
+            display: grid;
+            gap: 1.25rem;
+            margin-top: 2.5rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .feature i {
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .card h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
         #telegram-login-container {
-            margin: 30px 0;
+            margin: 2rem 0;
             min-height: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+            box-shadow: 0 0 0 3px white, 0 0 0 6px var(--primary-light);
+        }
+
+        .user-info h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .user-meta {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat {
+            background: var(--primary-light);
+            padding: 1.5rem;
+            border-radius: var(--radius);
             text-align: center;
         }
-        #dashboard {
-            display: none;
-            margin-top: 30px;
+
+        .stat h3 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
         }
-        .user-info {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        .error {
-            color: red;
-            padding: 15px;
-            background: #ffeeee;
-            border-radius: 5px;
-            margin: 20px 0;
+
+        .btn:hover {
+            background: #0077b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: var(--error);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero {
+                text-align: center;
+            }
+            
+            .features {
+                justify-content: center;
+            }
+            
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Telegram Login Test</h1>
-        
-        <div id="login-section">
-            <p>Click below to login with Telegram:</p>
-            <div id="telegram-login-container"></div>
-            <div id="error-message" class="error" style="display: none;"></div>
-        </div>
-        
-        <div id="dashboard">
-            <h2>Welcome to Your Dashboard</h2>
-            <div class="user-info">
-                <h3 id="user-name"></h3>
-                <p>Username: @<span id="user-username"></span></p>
-                <p>User ID: <span id="user-id"></span></p>
-                <button id="logout-btn">Log Out</button>
+        <header>
+            <a href="#" class="logo">
+                <i class="fab fa-telegram"></i>
+                <span>TeleAuth</span>
+            </a>
+            <div id="auth-status"></div>
+        </header>
+
+        <main>
+            <div id="login-section">
+                <div class="auth-container">
+                    <div class="hero">
+                        <h1>Secure, Instant Access with Telegram</h1>
+                        <p>Experience passwordless authentication with military-grade security through your Telegram account.</p>
+                        
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-shield-alt"></i>
+                                <div>
+                                    <h3>Bank-Level Security</h3>
+                                    <p>End-to-end encrypted authentication protocol</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-bolt"></i>
+                                <div>
+                                    <h3>One-Click Login</h3>
+                                    <p>No passwords to remember or type</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-user-secret"></i>
+                                <div>
+                                    <h3>Zero Tracking</h3>
+                                    <p>We never access your messages or contacts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Get Started</h2>
+                        <p>Connect your Telegram account to access your personalized dashboard</p>
+                        
+                        <div id="telegram-login-container"></div>
+                        
+                        <div id="error-message" class="alert alert-error" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div id="error-text"></div>
+                        </div>
+                        
+                        <p style="font-size: 0.8rem; color: var(--gray); margin-top: 1.5rem;">
+                            <i class="fas fa-lock"></i> Your information is securely handled by Telegram's encrypted API
+                        </p>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div id="dashboard" class="dashboard">
+                <div class="card">
+                    <div class="user-header">
+                        <img id="user-avatar" class="avatar" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="User Avatar">
+                        <div class="user-info">
+                            <h2 id="user-name">Welcome back!</h2>
+                            <p class="user-meta">
+                                @<span id="user-username">username</span> • 
+                                ID: <span id="user-id">12345</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <h3 id="session-time">0</h3>
+                            <p>Active minutes</p>
+                        </div>
+                        <div class="stat">
+                            <h3 id="login-count">1</h3>
+                            <p>Total logins</p>
+                        </div>
+                        <div class="stat">
+                            <h3 id="account-age">1</h3>
+                            <p>Days with us</p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Successfully authenticated via Telegram</div>
+                    </div>
+
+                    <button id="logout-btn" class="btn btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Log Out
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 TeleAuth. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Not affiliated with Telegram Messenger LLP</p>
+        </footer>
     </div>
 
     <script>
-        // Configuration - No domain needed for local testing
-        const BOT_USERNAME = "Ebonnebot"; // Replace with your bot username
-        
+        // Configuration
+        const CONFIG = {
+            botUsername: "YOUR_BOT_USERNAME" // Replace with your bot username
+        };
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const dashboard = document.getElementById('dashboard');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const authStatus = document.getElementById('auth-status');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // State
+        let sessionTimer;
+        let sessionStart;
+
         // Initialize Telegram Widget
         function initTelegramWidget() {
             const script = document.createElement('script');
             script.async = true;
             script.src = 'https://telegram.org/js/telegram-widget.js?22';
             
-            // Use data-onauth instead of data-auth-url
-            script.setAttribute('data-telegram-login', BOT_USERNAME);
+            // Widget configuration
+            script.setAttribute('data-telegram-login', CONFIG.botUsername);
             script.setAttribute('data-size', 'large');
             script.setAttribute('data-onauth', 'onTelegramAuth(user)');
             script.setAttribute('data-request-access', 'write');
             
             document.getElementById('telegram-login-container').appendChild(script);
             
-            // Check if widget loaded
+            // Check if widget loaded properly
             setTimeout(() => {
                 if (!window.Telegram?.Login) {
-                    showError('Telegram Widget failed to load. Check:<br>' +
-                             '1. You replaced YOUR_BOT_USERNAME<br>' +
-                             '2. Your bot exists (@BotFather)<br>' +
-                             '3. No browser extensions blocking scripts');
+                    showError(`
+                        <strong>Widget failed to initialize</strong><br>
+                        This might be because:<br>
+                        - Your ad blocker is interfering<br>
+                        - Network restrictions are in place<br>
+                        - The Telegram service is temporarily unavailable
+                    `);
                 }
             }, 3000);
         }
-        
+
         // Handle successful login
         window.onTelegramAuth = (user) => {
-            console.log('Authenticated:', user);
+            console.log('Authenticated user:', user);
             
             // Update UI
             document.getElementById('user-name').textContent = 
@@ -101,37 +429,96 @@
             document.getElementById('user-username').textContent = user.username || 'none';
             document.getElementById('user-id').textContent = user.id;
             
+            if (user.photo_url) {
+                document.getElementById('user-avatar').src = user.photo_url;
+            }
+            
             // Show dashboard
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
+            loginSection.style.display = 'none';
+            dashboard.style.display = 'block';
+            
+            // Start session timer
+            startSessionTimer();
             
             // Store user data
-            localStorage.setItem('telegram_user', JSON.stringify(user));
+            const userData = {
+                ...user,
+                firstLogin: new Date().toISOString(),
+                loginCount: (getUserData()?.loginCount || 0) + 1
+            };
+            localStorage.setItem('telegram_user', JSON.stringify(userData));
+            
+            // Update auth status
+            authStatus.innerHTML = `
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-user-check" style="color: var(--success);"></i>
+                    ${user.first_name}
+                </span>
+            `;
+            
+            // Update stats
+            updateStats(userData);
         };
-        
-        // Logout function
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('telegram_user');
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('login-section').style.display = 'block';
-        });
-        
-        // Show error
-        function showError(message) {
-            const el = document.getElementById('error-message');
-            el.innerHTML = message;
-            el.style.display = 'block';
+
+        // Get stored user data
+        function getUserData() {
+            const data = localStorage.getItem('telegram_user');
+            return data ? JSON.parse(data) : null;
         }
-        
-        // Check for existing session
+
+        // Start session timer
+        function startSessionTimer() {
+            sessionStart = new Date();
+            updateSessionTime();
+            sessionTimer = setInterval(updateSessionTime, 60000);
+        }
+
+        // Update session time display
+        function updateSessionTime() {
+            const minutes = Math.floor((new Date() - sessionStart) / 60000);
+            document.getElementById('session-time').textContent = minutes;
+        }
+
+        // Update user stats
+        function updateStats(userData) {
+            // Account age in days
+            const accountAge = Math.floor(
+                (new Date() - new Date(userData.firstLogin)) / (1000 * 60 * 60 * 24)
+            );
+            document.getElementById('account-age').textContent = accountAge || 1;
+            document.getElementById('login-count').textContent = userData.loginCount;
+        }
+
+        // Show error message
+        function showError(message) {
+            errorText.innerHTML = message;
+            errorMessage.style.display = 'flex';
+        }
+
+        // Logout function
+        function logout() {
+            clearInterval(sessionTimer);
+            localStorage.removeItem('telegram_user');
+            dashboard.style.display = 'none';
+            loginSection.style.display = 'block';
+            authStatus.innerHTML = '';
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize application
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Telegram widget
             initTelegramWidget();
             
-            const savedUser = localStorage.getItem('telegram_user');
-            if (savedUser) {
-                window.onTelegramAuth(JSON.parse(savedUser));
+            // Check for existing session
+            const userData = getUserData();
+            if (userData) {
+                window.onTelegramAuth(userData);
             }
+            
+            // Setup logout button
+            logoutBtn.addEventListener('click', logout);
         });
     </script>
 </body>
-</html>
+                        </html>
