@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Handler</title>
+    <script>
+        // Extract user data from URL hash
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const userData = Object.fromEntries(params.entries());
+        
+        // Send data back to main window
+        if (window.opener) {
+            window.opener.onTelegramAuth(userData);
+            window.close();
+        } else {
+            document.body.innerHTML = '<p>Authentication complete. You can close this window.</p>';
+        }
+    </script>
+</head>
+<body>
+    <p>Processing authentication...</p>
+</body>
+</html>

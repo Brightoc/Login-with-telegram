@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Login Test</title>
+    <style>
+        :root {
+            --primary: #0088cc;
+            --light-bg: #f5f5f5;
+            --border: #e0e0e0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-section, .dashboard {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .dashboard {
+            display: none;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 3px solid var(--primary);
+        }
+        .telegram-btn {
+            margin: 20px 0;
+            min-height: 50px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .stat-card {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .logout-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Telegram Login Demo</h1>
+            <p>Test the Telegram Login Widget with a user dashboard</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Login Section -->
+        <section class="login-section" id="login-section">
+            <h2>Login with Telegram</h2>
+            <p>Click the button below to authenticate using your Telegram account:</p>
+            
+            <div class="telegram-btn" id="telegram-login-btn"></div>
+            
+            <div id="login-error" style="color: red; margin-top: 15px; display: none;">
+                Error loading Telegram widget. Please check:
+                <ul>
+                    <li>You've replaced YOUR_BOT_USERNAME</li>
+                    <li>Your domain is set in @BotFather</li>
+                    <li>No browser extensions are blocking scripts</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section class="dashboard" id="dashboard">
+            <div class="user-info">
+                <img id="user-avatar" class="user-avatar" src="https://via.placeholder.com/80" alt="User Avatar">
+                <div>
+                    <h2 id="user-fullname">Welcome!</h2>
+                    <p>Username: @<span id="user-username">username</span></p>
+                    <p>User ID: <span id="user-id">12345</span></p>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Last Login</h3>
+                    <p id="last-login">Just now</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Account Status</h3>
+                    <p>Active</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Auth Method</h3>
+                    <p>Telegram</p>
+                </div>
+            </div>
+
+            <h3>Recent Activity</h3>
+            <ul id="activity-feed">
+                <li>Successfully logged in via Telegram</li>
+            </ul>
+
+            <button class="logout-btn" id="logout-btn">Log Out</button>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Telegram Login Widget Test | No backend required</p>
+        </div>
+    </footer>
+
+    <script>
+        // Configuration - CHANGE THESE!
+        const BOT_USERNAME = "YOUR_BOT_USERNAME"; // Without @
+        const LOCAL_DOMAIN = "127.0.0.1"; // Or your test domain
+        
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const dashboard = document.getElementById('dashboard');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        // Initialize Telegram Widget
+        function initTelegramWidget() {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://telegram.org/js/telegram-widget.js?22';
+            script.setAttribute('data-telegram-login', BOT_USERNAME);
+            script.setAttribute('data-size', 'large');
+            script.setAttribute('data-auth-url', `http://${LOCAL_DOMAIN}/auth-handler.html`);
+            script.setAttribute('data-request-access', 'write');
+            document.getElementById('telegram-login-btn').appendChild(script);
+            
+            // Check if widget loaded properly
+            setTimeout(() => {
+                if (!window.Telegram?.Login) {
+                    document.getElementById('login-error').style.display = 'block';
+                }
+            }, 3000);
+        }
+        
+        // Handle successful login
+        window.onTelegramAuth = (user) => {
+            console.log('User authenticated:', user);
+            
+            // Update UI
+            document.getElementById('user-fullname').textContent = 
+                `${user.first_name} ${user.last_name || ''}`.trim();
+            document.getElementById('user-username').textContent = user.username || 'none';
+            document.getElementById('user-id').textContent = user.id;
+            
+            if (user.photo_url) {
+                document.getElementById('user-avatar').src = user.photo_url;
+            }
+            
+            // Show dashboard
+            loginSection.style.display = 'none';
+            dashboard.style.display = 'block';
+            
+            // Store user data in localStorage
+            localStorage.setItem('telegram_user', JSON.stringify(user));
+            localStorage.setItem('last_login', new Date().toLocaleString());
+            
+            // Update last login time
+            document.getElementById('last-login').textContent = 
+                localStorage.getItem('last_login');
+        };
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('telegram_user');
+            loginSection.style.display = 'block';
+            dashboard.style.display = 'none';
+        }
+        
+        // Check for existing session on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initTelegramWidget();
+            
+            logoutBtn.addEventListener('click', logout);
+            
+            const savedUser = localStorage.getItem('telegram_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                window.onTelegramAuth(user);
+            }
+        });
+    </script>
+</body>
+</html>
