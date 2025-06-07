@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Auth Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0088cc;
+            --primary-dark: #006699;
+            --primary-light: #e6f4ff;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --error: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 136, 204, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(to right, var(--primary), #00c6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .features {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .feature i {
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .card h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        #telegram-login-container {
+            margin: 2rem 0;
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+            box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--primary-light);
+        }
+
+        .user-info h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .user-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .account-switcher {
+            position: relative;
+        }
+
+        .account-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .account-trigger:hover {
+            background: var(--primary-light);
+        }
+
+        .account-trigger img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .account-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-width: 240px;
+            z-index: 100;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .account-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .account-option {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .account-option:hover {
+            background: var(--primary-light);
+        }
+
+        .account-option img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .account-actions {
+            border-top: 1px solid var(--border);
+            padding: 0.5rem 0;
+        }
+
+        .account-action {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .account-action:hover {
+            background: var(--primary-light);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .stat {
+            background: var(--primary-light);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .stat h3 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: var(--surface);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: var(--error);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero {
+                text-align: center;
+            }
+            
+            .features {
+                justify-content: center;
+            }
+            
+            .user-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .account-dropdown {
+                left: 0;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="logo">
+                <i class="fab fa-telegram"></i>
+                <span>TeleAuth</span>
+            </a>
+            <div id="auth-status"></div>
+        </header>
+
+        <main>
+            <div id="login-section">
+                <div class="auth-container">
+                    <div class="hero">
+                        <h1>Secure Multi-Account Access</h1>
+                        <p>Manage multiple Telegram accounts with enterprise-grade security and seamless switching between profiles.</p>
+                        
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-users"></i>
+                                <div>
+                                    <h3>Multiple Accounts</h3>
+                                    <p>Switch between profiles with one click</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-lock"></i>
+                                <div>
+                                    <h3>End-to-End Security</h3>
+                                    <p>Military-grade encryption for all accounts</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-sync-alt"></i>
+                                <div>
+                                    <h3>Instant Switching</h3>
+                                    <p>No need to re-authenticate when changing accounts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Connect Your Account</h2>
+                        <p>Add your first Telegram account to get started</p>
+                        
+                        <div id="telegram-login-container"></div>
+                        
+                        <div id="error-message" class="alert alert-error" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div id="error-text"></div>
+                        </div>
+                        
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 1.5rem;">
+                            <i class="fas fa-lock"></i> All accounts are securely isolated and encrypted
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboard" class="dashboard">
+                <div class="card">
+                    <div class="user-header">
+                        <div class="user-profile">
+                            <img id="user-avatar" class="avatar" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="User Avatar">
+                            <div class="user-info">
+                                <h2 id="user-name">Welcome back!</h2>
+                                <p class="user-meta">
+                                    @<span id="user-username">username</span> • 
+                                    ID: <span id="user-id">12345</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="account-switcher" id="account-switcher">
+                            <div class="account-trigger" id="account-trigger">
+                                <img id="current-avatar" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Current Account">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            
+                            <div class="account-dropdown" id="account-dropdown">
+                                <div id="account-list"></div>
+                                <div class="account-actions">
+                                    <div class="account-action" id="add-account">
+                                        <i class="fas fa-plus"></i>
+                                        <span>Add another account</span>
+                                    </div>
+                                    <div class="account-action" id="logout-all">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span>Log out all accounts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div>Successfully authenticated with Telegram</div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <h3 id="session-time">0</h3>
+                            <p>Active minutes</p>
+                        </div>
+                        <div class="stat">
+                            <h3 id="login-count">1</h3>
+                            <p>Total logins</p>
+                        </div>
+                        <div class="stat">
+                            <h3 id="account-age">1</h3>
+                            <p>Days with us</p>
+                        </div>
+                        <div class="stat">
+                            <h3 id="total-accounts">1</h3>
+                            <p>Linked accounts</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn" id="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Session
+                        </button>
+                        <button class="btn btn-outline" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Log Out Current
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2023 TeleAuth. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Not affiliated with Telegram Messenger LLP</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            botUsername: "YOUR_BOT_USERNAME" // Replace with your bot username
+        };
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const dashboard = document.getElementById('dashboard');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const authStatus = document.getElementById('auth-status');
+        const accountSwitcher = document.getElementById('account-switcher');
+        const accountTrigger = document.getElementById('account-trigger');
+        const accountDropdown = document.getElementById('account-dropdown');
+        const accountList = document.getElementById('account-list');
+        const addAccountBtn = document.getElementById('add-account');
+        const logoutBtn = document.getElementById('logout-btn');
+        const logoutAllBtn = document.getElementById('logout-all');
+        const refreshBtn = document.getElementById('refresh-btn');
+
+        // State
+        let sessionTimer;
+        let sessionStart;
+        let accounts = {};
+        let currentAccountId = null;
+
+        // Initialize Telegram Widget
+        function initTelegramWidget() {
+            const container = document.getElementById('telegram-login-container');
+            container.innerHTML = '';
+            
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://telegram.org/js/telegram-widget.js?22';
+            
+            script.setAttribute('data-telegram-login', CONFIG.botUsername);
+            script.setAttribute('data-size', 'large');
+            script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+            script.setAttribute('data-request-access', 'write');
+            
+            container.appendChild(script);
+            
+            // Check if widget loaded
+            setTimeout(() => {
+                if (!window.Telegram?.Login) {
+                    showError('Failed to load Telegram Widget. Please check:<br>' +
+                             '1. You replaced YOUR_BOT_USERNAME<br>' +
+                             '2. Your bot exists (@BotFather)<br>' +
+                             '3. No browser extensions blocking scripts');
+                }
+            }, 3000);
+        }
+
+        // Handle successful login
+        window.onTelegramAuth = (user) => {
+            // Store or update account data
+            accounts[user.id] = {
+                ...user,
+                firstLogin: accounts[user.id]?.firstLogin || new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                loginCount: (accounts[user.id]?.loginCount || 0) + 1
+            };
+            
+            currentAccountId = user.id;
+            
+            saveAccounts();
+            updateUI();
+            updateAccountSwitcher();
+            
+            // Show dashboard
+            loginSection.style.display = 'none';
+            dashboard.style.display = 'block';
+            
+            // Start session timer
+            startSessionTimer();
+        };
+
+        // Update UI with current account data
+        function updateUI() {
+            const account = accounts[currentAccountId];
+            if (!account) return;
+            
+            document.getElementById('user-name').textContent = 
+                `${account.first_name} ${account.last_name || ''}`.trim();
+            document.getElementById('user-username').textContent = account.username || 'none';
+            document.getElementById('user-id').textContent = account.id;
+            document.getElementById('current-avatar').src = 
+                account.photo_url || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+            document.getElementById('user-avatar').src = 
+                account.photo_url || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png';
+            
+            // Update stats
+            updateStats();
+            
+            // Update auth status
+            authStatus.innerHTML = `
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-user-check" style="color: var(--success);"></i>
+                    ${account.first_name}
+                </span>
+            `;
+        }
+
+        // Update account switcher dropdown
+        function updateAccountSwitcher() {
+            accountList.innerHTML = '';
+            
+            Object.entries(accounts).forEach(([id, account]) => {
+                const isCurrent = id === currentAccountId;
+                const accountElement = document.createElement('div');
+                accountElement.className = `account-option ${isCurrent ? 'current' : ''}`;
+                accountElement.innerHTML = `
+                    <img src="${account.photo_url || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}" 
+                         alt="${account.first_name}">
+                    <span>${account.first_name} (@${account.username || 'no-username'})</span>
+                    ${isCurrent ? '<i class="fas fa-check"></i>' : ''}
+                `;
+                
+                accountElement.addEventListener('click', () => switchAccount(id));
+                accountList.appendChild(accountElement);
+            });
+            
+            document.getElementById('total-accounts').textContent = Object.keys(accounts).length;
+        }
+
+        // Switch to another account
+        function switchAccount(id) {
+            if (accounts[id]) {
+                currentAccountId = id;
+                localStorage.setItem('current_account', id);
+                updateUI();
+                hideAccountDropdown();
+                
+                // Refresh session
+                clearInterval(sessionTimer);
+                startSessionTimer();
+            }
+        }
+
+        // Add a new account
+        function addAccount() {
+            initTelegramWidget();
+            loginSection.style.display = 'block';
+            dashboard.style.display = 'none';
+            hideAccountDropdown();
+            
+            // Scroll to login section
+            window.scrollTo({
+                top: document.getElementById('login-section').offsetTop,
+                behavior: 'smooth'
+            });
+        }
+
+        // Logout current account
+        function logout() {
+            if (currentAccountId && accounts[currentAccountId]) {
+                delete accounts[currentAccountId];
+                saveAccounts();
+                
+                if (Object.keys(accounts).length > 0) {
+                    // Switch to another account
+                    currentAccountId = Object.keys(accounts)[0];
+                    localStorage.setItem('current_account', currentAccountId);
+                    updateUI();
+                    updateAccountSwitcher();
+                } else {
+                    // No accounts left
+                    currentAccountId = null;
+                    localStorage.removeItem('current_account');
+                    loginSection.style.display = 'block';
+                    dashboard.style.display = 'none';
+                    authStatus.innerHTML = '';
+                }
+            }
+            
+            hideAccountDropdown();
+        }
+
+        // Logout all accounts
+        function logoutAll() {
+            accounts = {};
+            currentAccountId = null;
+            localStorage.removeItem('telegram_accounts');
+            localStorage.removeItem('current_account');
+            
+            loginSection.style.display = 'block';
+            dashboard.style.display = 'none';
+            authStatus.innerHTML = '';
+            
+            hideAccountDropdown();
+            initTelegramWidget();
+        }
+
+        // Refresh session
+        function refreshSession() {
+            clearInterval(sessionTimer);
+            startSessionTimer();
+            
+            // Show feedback
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <div>Session refreshed successfully</div>
+            `;
+            document.querySelector('.card').insertBefore(alert, document.querySelector('.stats'));
+            
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+
+        // Start session timer
+        function startSessionTimer() {
+            sessionStart = new Date();
+            updateSessionTime();
+            sessionTimer = setInterval(updateSessionTime, 60000);
+        }
+
+        // Update session time display
+        function updateSessionTime() {
+            if (sessionStart) {
+                const minutes = Math.floor((new Date() - sessionStart) / 60000);
+                document.getElementById('session-time').textContent = minutes;
+            }
+        }
+
+        // Update user stats
+        function updateStats() {
+            const account = accounts[currentAccountId];
+            if (!account) return;
+            
+            // Account age in days
+            const accountAge = Math.floor(
+                (new Date() - new Date(account.firstLogin)) / (1000 * 60 * 60 * 24)
+            );
+            document.getElementById('account-age').textContent = accountAge || 1;
+            document.getElementById('login-count').textContent = account.loginCount || 1;
+        }
+
+        // Save accounts to localStorage
+        function saveAccounts() {
+            localStorage.setItem('telegram_accounts', JSON.stringify(accounts));
+            if (currentAccountId) {
+                localStorage.setItem('current_account', currentAccountId);
+            }
+        }
+
+        // Load accounts from localStorage
+        function loadAccounts() {
+            const savedAccounts = localStorage.getItem('telegram_accounts');
+            if (savedAccounts) {
+                accounts = JSON.parse(savedAccounts);
+            }
+            
+            currentAccountId = localStorage.getItem('current_account');
+        }
+
+        // Show error message
+        function showError(message) {
+            errorText.innerHTML = message;
+            errorMessage.style.display = 'flex';
+        }
+
+        // Toggle account dropdown
+        function toggleAccountDropdown() {
+            if (accountDropdown.classList.contains('show')) {
+                hideAccountDropdown();
+            } else {
+                showAccountDropdown();
+            }
+        }
+
+        // Show account dropdown
+        function showAccountDropdown() {
+            accountDropdown.classList.add('show');
+            document.addEventListener('click', handleOutsideClick);
+        }
+
+        // Hide account dropdown
+        function hideAccountDropdown() {
+            accountDropdown.classList.remove('show');
+            document.removeEventListener('click', handleOutsideClick);
+        }
+
+        // Handle clicks outside dropdown
+        function handleOutsideClick(e) {
+            if (!accountSwitcher.contains(e.target)) {
+                hideAccountDropdown();
+            }
+        }
+
+        // Initialize application
+        function init() {
+            loadAccounts();
+            initTelegramWidget();
+            
+            // Event listeners
+            accountTrigger.addEventListener('click', toggleAccountDropdown);
+            addAccountBtn.addEventListener('click', addAccount);
+            logoutBtn.addEventListener('click', logout);
+            logoutAllBtn.addEventListener('click', logoutAll);
+            refreshBtn.addEventListener('click', refreshSession);
+            
+            // Check for existing session
+            if (currentAccountId && accounts[currentAccountId]) {
+                updateUI();
+                updateAccountSwitcher();
+                loginSection.style.display = 'none';
+                dashboard.style.display = 'block';
+                startSessionTimer();
+            }
+        }
+
+        // Start the app
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
