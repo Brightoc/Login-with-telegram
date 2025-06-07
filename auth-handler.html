@@ -1,31 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auth Handler</title>
+    <title>Authentication Handler</title>
     <script>
-        // Get hash parameters
+        // Extract user data from URL hash
         const hash = window.location.hash.substring(1);
         const params = new URLSearchParams(hash);
         const user = {};
         
-        // Convert to object
         for (const [key, value] of params.entries()) {
             user[key] = value;
         }
 
-        // Send back to opener window
+        // Send data back to main window
         if (window.opener) {
             window.opener.postMessage({
                 type: 'telegram-auth',
                 user: user
-            }, '*');
+            }, 'https://yourdomain.com');
+            
             window.close();
         } else {
-            document.body.innerHTML = '<p>Authentication complete. You can close this window.</p>';
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2>Authentication Complete</h2>
+                    <p>You can safely close this window and return to the application.</p>
+                    <button onclick="window.close()" style="
+                        background: #0088cc;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        margin-top: 20px;
+                    ">Close Window</button>
+                </div>
+            `;
         }
     </script>
 </head>
 <body>
-    <p>Processing Telegram authentication...</p>
+    <p>Processing authentication...</p>
 </body>
 </html>
