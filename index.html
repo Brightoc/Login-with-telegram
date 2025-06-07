@@ -227,6 +227,13 @@
                 window.onTelegramAuth(user);
             }
         });
+
+        // Add this to your existing JavaScript
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'telegram-auth') {
+        window.onTelegramAuth(event.data.user);
+    }
+});
     </script>
 </body>
 </html>
